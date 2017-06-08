@@ -1,4 +1,4 @@
-package pl.potera.lightsword
+package pl.potera.acchart
 
 import android.graphics.Color
 import android.hardware.Sensor

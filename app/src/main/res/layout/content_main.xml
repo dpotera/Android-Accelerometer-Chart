@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     xmlns:ap="http://schemas.android.com/apk/res-auto"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="pl.potera.lightsword.MainActivity"
+    tools:context="pl.potera.acchart.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
     <com.androidplot.xy.XYPlot
@@ -23,8 +23,5 @@
         app:paddingTop="20dp"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp" />
-
-
-
 
 </android.support.constraint.ConstraintLayout>
