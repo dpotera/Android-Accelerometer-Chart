@@ -30,8 +30,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val linear_acceleration = FloatArray(3)
     private val historySeries: Array<SimpleXYSeries> = arrayOf(
             SimpleXYSeries("X"), SimpleXYSeries("Y"), SimpleXYSeries("Z"))
-    private var sensorManager: SensorManager? = null
-    private var redrawer: Redrawer? = null
+    private var redrawer: Redrawer =
+            Redrawer(Arrays.asList(*arrayOf<Plot<*, *, *, *, *>>(history_plot)), 100f, false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,8 +45,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     .setAction("Action", null).show()
         }
 
-        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-
         val drawer = findViewById(R.id.drawer_layout) as DrawerLayout
         val toggle = ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
@@ -56,35 +54,49 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navigationView = findViewById(R.id.nav_view) as NavigationView
         navigationView.setNavigationItemSelectedListener(this)
 
-        initializeChart()
+        setupChart()
+        setupAccelerometer()
     }
 
-    private fun initializeChart() {
+    private fun setupChart() {
+        setupChartRange()
+        setupChartDomain()
+        setupChartLabels()
+        setupChartSeries()
+    }
+
+    private fun setupAccelerometer() {
+        val sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI)
+    }
+
+    private fun setupChartLabels() {
+        history_plot.graph.getLineLabelStyle(XYGraphWidget.Edge.LEFT).format = DecimalFormat("#")
+        history_plot.graph.getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).format = DecimalFormat("#")
+    }
+
+    private fun setupChartSeries() {
         historySeries.forEach { series -> series.useImplicitXVals() }
-
-        history_plot.setRangeBoundaries(-50, 50, BoundaryMode.FIXED)
-        history_plot.linesPerRangeLabel = 5
-        history_plot.setRangeStep(StepMode.INCREMENT_BY_FIT, 10.0)
-        history_plot.setRangeLabel("Acceleration (-g - ∑F / mass)")
-        history_plot.rangeTitle.pack()
-
-        history_plot.setDomainBoundaries(0, HISTORY_SIZE, BoundaryMode.FIXED)
-        history_plot.setDomainLabel("Dimensions")
-        history_plot.domainTitle.pack()
-
         history_plot.addSeries(historySeries[0], LineAndPointFormatter(Color.rgb(100, 100, 200), null, null, null))
         history_plot.addSeries(historySeries[1], LineAndPointFormatter(Color.rgb(100, 200, 100), null, null, null))
         history_plot.addSeries(historySeries[2], LineAndPointFormatter(Color.rgb(200, 100, 100), null, null, null))
+    }
+
+    private fun setupChartDomain() {
+        history_plot.setDomainBoundaries(0, HISTORY_SIZE, BoundaryMode.FIXED)
+        history_plot.setDomainLabel("Dimensions")
         history_plot.domainStepMode = StepMode.INCREMENT_BY_VAL
         history_plot.domainStepValue = (HISTORY_SIZE / 10).toDouble()
+        history_plot.domainTitle.pack()
+    }
 
-        history_plot.graph.getLineLabelStyle(XYGraphWidget.Edge.LEFT).format = DecimalFormat("#")
-        history_plot.graph.getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).format = DecimalFormat("#")
-
-        val mAccelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        sensorManager?.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_UI)
-
-        redrawer = Redrawer(Arrays.asList(*arrayOf<Plot<*, *, *, *, *>>(history_plot)), 100f, false)
+    private fun setupChartRange() {
+        history_plot.setRangeBoundaries(-50, 50, BoundaryMode.FIXED)
+        history_plot.setRangeLabel("Acceleration (-g - ∑F / mass)")
+        history_plot.setRangeStep(StepMode.INCREMENT_BY_FIT, 10.0)
+        history_plot.linesPerRangeLabel = 5
+        history_plot.rangeTitle.pack()
     }
 
     @Synchronized override fun onSensorChanged(event: SensorEvent) {
@@ -96,10 +108,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun calculateAcceleration(event: SensorEvent) {
+        calculateGravity(event)
+        calculateLinearAcceleration(event)
+    }
+
+    private fun calculateGravity(event: SensorEvent) {
         gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0]
         gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1]
         gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2]
+    }
 
+    private fun calculateLinearAcceleration(event: SensorEvent) {
         linear_acceleration[0] = event.values[0] - gravity[0]
         linear_acceleration[1] = event.values[1] - gravity[1]
         linear_acceleration[2] = event.values[2] - gravity[2]
@@ -158,16 +177,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     public override fun onResume() {
         super.onResume()
-        redrawer?.start()
+        redrawer.start()
     }
 
     public override fun onPause() {
-        redrawer?.pause()
+        redrawer.pause()
         super.onPause()
     }
 
     public override fun onDestroy() {
-        redrawer?.finish()
+        redrawer.finish()
         super.onDestroy()
     }
 
