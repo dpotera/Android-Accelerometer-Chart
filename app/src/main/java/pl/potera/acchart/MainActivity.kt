@@ -30,8 +30,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val linear_acceleration = FloatArray(3)
     private val historySeries: Array<SimpleXYSeries> = arrayOf(
             SimpleXYSeries("X"), SimpleXYSeries("Y"), SimpleXYSeries("Z"))
-    private var redrawer: Redrawer =
-            Redrawer(Arrays.asList(*arrayOf<Plot<*, *, *, *, *>>(history_plot)), 100f, false)
+    private var redrawer: Redrawer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +55,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         setupChart()
         setupAccelerometer()
+        redrawer = Redrawer(Arrays.asList(*arrayOf<Plot<*, *, *, *, *>>(history_plot)), 100f, false)
     }
 
     private fun setupChart() {
@@ -177,16 +177,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     public override fun onResume() {
         super.onResume()
-        redrawer.start()
+        redrawer?.start()
     }
 
     public override fun onPause() {
-        redrawer.pause()
+        redrawer?.pause()
         super.onPause()
     }
 
     public override fun onDestroy() {
-        redrawer.finish()
+        redrawer?.finish()
         super.onDestroy()
     }
 
