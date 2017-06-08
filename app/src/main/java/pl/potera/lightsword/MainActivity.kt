@@ -17,7 +17,6 @@ import android.hardware.SensorManager
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import com.androidplot.Plot
-import com.androidplot.util.PlotStatistics
 import com.androidplot.util.Redrawer
 import com.androidplot.xy.*
 import kotlinx.android.synthetic.main.content_main.*
@@ -29,11 +28,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val alpha = 0.8f
     private val gravity = FloatArray(3)
     private val linear_acceleration = FloatArray(3)
-
-    private val xHistorySeries: SimpleXYSeries = SimpleXYSeries("X")
-    private val yHistorySeries: SimpleXYSeries = SimpleXYSeries("Y")
-    private val zHistorySeries: SimpleXYSeries = SimpleXYSeries("Z")
-
+    private val historySeries: Array<SimpleXYSeries> = arrayOf(
+            SimpleXYSeries("X"), SimpleXYSeries("Y"), SimpleXYSeries("Z"))
     private var sensorManager: SensorManager? = null
     private var redrawer: Redrawer? = null
 
@@ -64,9 +60,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun initializeChart() {
-        xHistorySeries.useImplicitXVals()
-        yHistorySeries.useImplicitXVals()
-        zHistorySeries.useImplicitXVals()
+        historySeries.forEach { series -> series.useImplicitXVals() }
 
         history_plot.setRangeBoundaries(-50, 50, BoundaryMode.FIXED)
         history_plot.linesPerRangeLabel = 5
@@ -78,17 +72,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         history_plot.setDomainLabel("Dimensions")
         history_plot.domainTitle.pack()
 
-        history_plot.addSeries(xHistorySeries, LineAndPointFormatter(Color.rgb(100, 100, 200), null, null, null))
-        history_plot.addSeries(yHistorySeries, LineAndPointFormatter(Color.rgb(100, 200, 100), null, null, null))
-        history_plot.addSeries(zHistorySeries, LineAndPointFormatter(Color.rgb(200, 100, 100), null, null, null))
+        history_plot.addSeries(historySeries[0], LineAndPointFormatter(Color.rgb(100, 100, 200), null, null, null))
+        history_plot.addSeries(historySeries[1], LineAndPointFormatter(Color.rgb(100, 200, 100), null, null, null))
+        history_plot.addSeries(historySeries[2], LineAndPointFormatter(Color.rgb(200, 100, 100), null, null, null))
         history_plot.domainStepMode = StepMode.INCREMENT_BY_VAL
         history_plot.domainStepValue = (HISTORY_SIZE / 10).toDouble()
 
         history_plot.graph.getLineLabelStyle(XYGraphWidget.Edge.LEFT).format = DecimalFormat("#")
         history_plot.graph.getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).format = DecimalFormat("#")
-
-        val histStats = PlotStatistics(1000, false)
-        history_plot.addListener(histStats)
 
         val mAccelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         sensorManager?.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_UI)
@@ -97,6 +88,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     @Synchronized override fun onSensorChanged(event: SensorEvent) {
+        calculateAcceleration(event)
+        if (historySeries[0].size() > HISTORY_SIZE)
+            historySeries.forEach { series -> series.removeFirst() }
+        historySeries.forEachIndexed { index, series ->
+            series.addLast(null, linear_acceleration[index]) }
+    }
+
+    private fun calculateAcceleration(event: SensorEvent) {
         gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0]
         gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1]
         gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2]
@@ -104,16 +103,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         linear_acceleration[0] = event.values[0] - gravity[0]
         linear_acceleration[1] = event.values[1] - gravity[1]
         linear_acceleration[2] = event.values[2] - gravity[2]
-
-        if (xHistorySeries.size() > HISTORY_SIZE) {
-            xHistorySeries.removeFirst()
-            yHistorySeries.removeFirst()
-            zHistorySeries.removeFirst()
-        }
-
-        xHistorySeries.addLast(null, linear_acceleration[0])
-        yHistorySeries.addLast(null, linear_acceleration[1])
-        zHistorySeries.addLast(null, linear_acceleration[2])
     }
 
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
