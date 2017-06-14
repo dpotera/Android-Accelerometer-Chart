@@ -41,9 +41,10 @@ class ValuesActivity :AppCompatActivity(), NavigationView.OnNavigationItemSelect
     }
 
     @Synchronized override fun onSensorChanged(event: SensorEvent) {
-        x_value.text = event.values[0].toString()
-        y_value.text = event.values[1].toString()
-        z_value.text = event.values[2].toString()
+        val value_format = "%.2f"
+        x_value.text = value_format.format(event.values[0])
+        y_value.text = value_format.format(event.values[1])
+        z_value.text = value_format.format(event.values[2])
     }
 
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {}
