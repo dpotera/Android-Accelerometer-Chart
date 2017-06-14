@@ -10,4 +10,8 @@
     <string name="values">Values</string>
     <string name="accelerometer_chart">Accelerometer Chart App</string>
     <string name="email">dominik.potera@gmail.com</string>
+    <string name="z">Z</string>
+    <string name="x">X</string>
+    <string name="y">Y</string>
+    <string name="title_activity_values">ValuesActivity</string>
 </resources>

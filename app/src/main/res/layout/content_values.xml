@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="pl.potera.acchart.ValuesActivity"
+    tools:showIn="@layout/app_bar_values">
+
+    <TextView
+        android:id="@+id/x_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/x"
+        android:textAlignment="center"
+        android:textAppearance="@android:style/TextAppearance.Material.Display2" />
+
+    <TextView
+        android:id="@+id/x_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="0.0"
+        android:textAlignment="center"
+        android:textAppearance="@android:style/TextAppearance.Material.Display2" />
+
+    <TextView
+        android:id="@+id/y_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/y"
+        android:textAlignment="center"
+        android:textAppearance="@android:style/TextAppearance.Material.Display2" />
+
+    <TextView
+        android:id="@+id/y_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="0.0"
+        android:textAlignment="center"
+        android:textAppearance="@android:style/TextAppearance.Material.Display2" />
+
+    <TextView
+        android:id="@+id/z_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/z"
+        android:textAlignment="center"
+        android:textAppearance="@android:style/TextAppearance.Material.Display2" />
+
+    <TextView
+        android:id="@+id/z_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="0.0"
+        android:textAlignment="center"
+        android:textAppearance="@android:style/TextAppearance.Material.Display2" />
+</LinearLayout>

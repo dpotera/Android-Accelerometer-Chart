@@ -18,7 +18,7 @@ import com.androidplot.util.Redrawer
 import com.androidplot.xy.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
-import pl.potera.acchart.R.menu.main
+import org.jetbrains.anko.startActivity
 import java.text.DecimalFormat
 import java.util.*
 
@@ -131,7 +131,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Handle navigation view item clicks here.
         when(item.itemId) {
             R.id.nav_chart -> {}
-            R.id.nav_values -> {}
+            R.id.nav_values -> startActivity<ValuesActivity>()
         }
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
